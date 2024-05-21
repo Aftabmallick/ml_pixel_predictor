@@ -1,0 +1,6 @@
+env
+pixel_predictor.egg-info
+logs
+__pycache__
+artifacts
+

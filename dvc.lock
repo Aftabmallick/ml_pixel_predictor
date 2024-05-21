@@ -1,0 +1,75 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src\pixel_predictor\pipeline\stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d676f324489fe76ab9bc45cc046e6865
+      size: 425
+    - path: src\pixel_predictor\pipeline\stage_01_data_ingestion.py
+      hash: md5
+      md5: df34b703d11d7e4c39357dd8d67a2077
+      size: 1029
+    outs:
+    - path: artifacts/data_ingestion/data.npz
+      hash: md5
+      md5: dbf8b66200175908de9af20ab38d4264
+      size: 148131
+  prepare_base_model:
+    cmd: python src\pixel_predictor\pipeline\stage_02_prepare_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d676f324489fe76ab9bc45cc046e6865
+      size: 425
+    - path: src\pixel_predictor\pipeline\stage_02_prepare_base_model.py
+      hash: md5
+      md5: 943a1e5f6a105335f6af1d39d6174fa0
+      size: 1200
+    params:
+      params.yaml:
+        IMAGE_SIZE:
+        - 50
+        - 50
+        - 1
+        LEARNING_RATE: 0.001
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 3181d1415064b5d573341985b083774a.dir
+      size: 69438712
+      nfiles: 1
+  training:
+    cmd: python src\pixel_predictor\pipeline\stage_03_model_training.py
+    deps:
+    - path: artifacts/data_ingestion/data.npz
+      hash: md5
+      md5: dbf8b66200175908de9af20ab38d4264
+      size: 148131
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 3181d1415064b5d573341985b083774a.dir
+      size: 69438712
+      nfiles: 1
+    - path: config/config.yaml
+      hash: md5
+      md5: d676f324489fe76ab9bc45cc046e6865
+      size: 425
+    - path: src\pixel_predictor\pipeline\stage_03_model_training.py
+      hash: md5
+      md5: 1764a6fa7e40bd7b6e5480dbcc046e24
+      size: 1057
+    params:
+      params.yaml:
+        BATCH_SIZE: 32
+        EPOCHS: 10
+        IMAGE_SIZE:
+        - 50
+        - 50
+        - 1
+    outs:
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 5e25d00bbae18581f6bc4bab579753bc
+      size: 208279784

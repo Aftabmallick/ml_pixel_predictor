@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Prediction</title>
+    <style>
+		.container{
+			padding-left: 20%;
+			padding-right: 20%;
+		}
+        #drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            width: 300px;
+            height: 300px;
+            line-height: 200px;
+            text-align: center;
+            font-size: 18px;
+            color: #ccc;
+            margin: 20px auto;
+            position: relative;
+        }
+        #drop-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+		.button{
+			padding-left: 47%;
+		}
+		.title{
+			padding-left: 37%;
+		}
+		.result{
+			padding-left: 40%;
+		}
+    </style>
+</head>
+<body>
+	<div class="container">
+    	<h1 class="title">Image Prediction</h1>
+    <div id="drop-area">
+        <span>Drag & Drop Image Here or Click</span>
+        <input type="file" id="image-input" accept="image/*" style="display: none;">
+        <img id="preview" src="" alt="" style="display: none;">
+    </div>
+		<div class="button">
+			<button type="button" id="predict-button"><h3>Predict</h3></button>
+			
+		</div>
+		<h2 id="result" class="result"></h2>
+	</div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const imageInput = document.getElementById('image-input');
+        const previewImage = document.getElementById('preview');
+        const resultText = document.getElementById('result');
+
+        dropArea.addEventListener('click', () => imageInput.click());
+
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropArea.style.borderColor = '#000';
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.style.borderColor = '#ccc';
+        });
+
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropArea.style.borderColor = '#ccc';
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        imageInput.addEventListener('change', () => {
+            if (imageInput.files.length > 0) {
+                handleFile(imageInput.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                previewImage.src = event.target.result;
+                previewImage.style.display = 'block';
+                dropArea.querySelector('span').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('predict-button').addEventListener('click', async function() {
+            if (!previewImage.src) {
+                alert("Please select an image file first.");
+                return;
+            }
+
+            const base64Image = previewImage.src.split(',')[1]; // Remove the data URL prefix
+
+            const response = await fetch('http://localhost:8080/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: base64Image })
+            });
+
+            const result = await response.json();
+            resultText.innerText = `Prediction: ${result}`;
+        });
+    </script>
+</body>
+</html>

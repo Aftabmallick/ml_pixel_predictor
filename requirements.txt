@@ -1,0 +1,12 @@
+numpy
+tensorflow
+matplotlib
+scikit-learn
+dvc
+mlflow
+ensure==1.0.2
+python-box==6.0.2
+opencv-python
+flask_cors
+
+-e .
